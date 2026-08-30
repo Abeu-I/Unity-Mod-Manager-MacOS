@@ -71,6 +71,19 @@ Unpack the mod first. Its folder must contain `Info.json`, then run:
 ./setup_adofai_umm_macos.sh add-mod --mod "/full/path/to/UnpackedMod"
 ```
 
+## Optional Mac AutoPlay cheat mod
+
+The repository includes source for an experimental macOS-native autoplay mod.
+It wraps ADOFAI's own cross-platform autoplay mode and uses no Windows APIs.
+Autoplay defaults to off and can be toggled with F8. Build and install it with:
+
+```bash
+./build_mac_autoplay.sh --install
+```
+
+Use it only for local/custom-level testing, not to misrepresent scores, clears,
+achievements, or competitive play.
+
 ## Check the installation
 
 ```bash
