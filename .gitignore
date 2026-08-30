@@ -1,0 +1,10 @@
+.DS_Store
+*.zip
+Mods/
+build/
+dist/
+*.log
+ADOFAI UMM Backups/
+/adofai_umm_launcher
+/adofai_steam_bundle_launcher
+/libdoorstop_adofai_macos.dylib
