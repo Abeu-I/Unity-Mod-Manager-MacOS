@@ -1,6 +1,6 @@
 .DS_Store
 *.zip
-Mods/
+/downloaded-mods/
 build/
 dist/
 *.log

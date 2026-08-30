@@ -1,0 +1,12 @@
+{
+  "Id": "MacAutoPlay",
+  "DisplayName": "Mac AutoPlay",
+  "Author": "abexlz",
+  "Version": "0.1.0",
+  "ManagerVersion": "0.27.0",
+  "IsCheat": true,
+  "Requirements": [],
+  "AssemblyName": "MacAutoPlay.dll",
+  "EntryMethod": "MacAutoPlay.Main.Load",
+  "HomePage": "https://github.com/abexlz/Unity-Mod-Manager-MacOS"
+}
