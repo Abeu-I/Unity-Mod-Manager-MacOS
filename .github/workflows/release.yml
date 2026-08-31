@@ -11,10 +11,13 @@ permissions:
 jobs:
   macos:
     runs-on: macos-15
+    env:
+      HAS_SIGNING_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE_BASE64 != '' }}
+      HAS_NOTARY_CREDENTIALS: ${{ secrets.APPLE_ID != '' }}
     steps:
       - uses: actions/checkout@v4
       - name: Import signing certificate
-        if: ${{ secrets.APPLE_CERTIFICATE_BASE64 != '' }}
+        if: env.HAS_SIGNING_CERTIFICATE == 'true'
         env:
           CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
           CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -34,7 +37,7 @@ jobs:
           if [ -z "$DEVELOPER_ID_APPLICATION" ]; then unset DEVELOPER_ID_APPLICATION; fi
           ./create_dmg.sh
       - name: Notarize and staple
-        if: ${{ secrets.APPLE_ID != '' }}
+        if: env.HAS_NOTARY_CREDENTIALS == 'true'
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
