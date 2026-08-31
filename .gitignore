@@ -3,6 +3,8 @@
 /downloaded-mods/
 build/
 dist/
+.build/
+app/.build/
 *.log
 ADOFAI UMM Backups/
 /adofai_umm_launcher

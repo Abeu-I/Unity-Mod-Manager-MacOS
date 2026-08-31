@@ -13,6 +13,21 @@ Protection.
 
 ## Install
 
+### Native app
+
+Build the polished SwiftUI installer app from source:
+
+```bash
+./package_app.sh
+open "dist/ADOFAI Mod Installer.app"
+```
+
+The app provides Install/Update, Add Mod, Diagnostics, Restore Vanilla, file
+pickers, progress, and detailed output. The command-line workflow remains
+available below.
+
+### Command line
+
 In Terminal, change to the folder containing the script and run:
 
 ```bash
