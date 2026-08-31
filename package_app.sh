@@ -6,6 +6,7 @@ APP_NAME="ADOFAI Mod Installer"
 BUILD_ROOT="$SCRIPT_DIR/build/app"
 APP="$SCRIPT_DIR/dist/$APP_NAME.app"
 
+"$SCRIPT_DIR/build_native_components.sh"
 swift build --package-path "$SCRIPT_DIR/app" -c release --scratch-path "$BUILD_ROOT"
 
 rm -rf "$APP"
@@ -15,6 +16,8 @@ cp "$BUILD_ROOT/release/ADOFAIModInstaller" "$APP/Contents/MacOS/ADOFAIModInstal
 for item in setup_adofai_umm_macos.sh configure_adofai_steam_launch.sh build_native_components.sh build_mac_autoplay.sh; do
     cp "$SCRIPT_DIR/$item" "$APP/Contents/Resources/Tools/$item"
 done
+cp "$SCRIPT_DIR/libdoorstop_adofai_macos.dylib" "$APP/Contents/Resources/Tools/libdoorstop_adofai_macos.dylib"
+cp "$SCRIPT_DIR/adofai_steam_bundle_launcher" "$APP/Contents/Resources/Tools/adofai_steam_bundle_launcher"
 cp -R "$SCRIPT_DIR/src/." "$APP/Contents/Resources/Tools/src/"
 cp -R "$SCRIPT_DIR/third_party/." "$APP/Contents/Resources/Tools/third_party/"
 cp -R "$SCRIPT_DIR/mods/." "$APP/Contents/Resources/Tools/mods/"

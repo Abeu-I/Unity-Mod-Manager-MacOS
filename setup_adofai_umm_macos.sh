@@ -106,6 +106,11 @@ sha256_file() {
     shasum -a 256 "$1" | awk '{print $1}'
 }
 
+marker_launcher_hash() {
+    [ -f "$STEAM_BUNDLE_MARKER" ] || return 0
+    sed -nE 's/^Steam-compatible bundle launcher SHA-256 ([0-9a-f]{64})$/\1/p' "$STEAM_BUNDLE_MARKER" | head -n 1
+}
+
 require_command() {
     command -v "$1" >/dev/null 2>&1 || fail "Required command not found: $1"
 }
@@ -305,6 +310,8 @@ prepare_doorstop() {
             "$SCRIPT_DIR/build_native_components.sh"
         fi
         [ -f "$BUNDLED_DOORSTOP" ] || fail "Could not build libdoorstop_adofai_macos.dylib."
+        actual_hash="$(sha256_file "$BUNDLED_DOORSTOP")"
+        BUNDLED_DOORSTOP_SHA256="$actual_hash"
         DOORSTOP_BUILT="$BUNDLED_DOORSTOP"
     fi
 
@@ -557,12 +564,27 @@ EOF
 install_steam_bundle_launcher() {
     current_hash="$(sha256_file "$GAME_BIN")"
 
-    if [ "$current_hash" != "$BUNDLED_STEAM_BUNDLE_LAUNCHER_SHA256" ]; then
+    if [ -f "$STEAM_BUNDLE_MARKER" ]; then
+        installed_launcher_hash="$(sed -nE 's/^Steam-compatible bundle launcher SHA-256 ([0-9a-f]{64})$/\1/p' "$STEAM_BUNDLE_MARKER" | head -n 1)"
+        if [ -z "$installed_launcher_hash" ] || [ "$current_hash" != "$installed_launcher_hash" ]; then
+            current_archs="$(lipo -archs "$GAME_BIN" 2>/dev/null || true)"
+            case " $current_archs " in
+                *" arm64 "*)
+                    info "Steam supplied a newer universal game executable; refreshing the original backup."
+                    cp -p "$GAME_BIN" "$ORIGINAL_GAME_BIN.new"
+                    mv -f "$ORIGINAL_GAME_BIN.new" "$ORIGINAL_GAME_BIN"
+                    ;;
+                *)
+                    fail "The installed launcher does not match its marker. Run Diagnostics and restore or verify the game before reinstalling."
+                    ;;
+            esac
+        fi
+    else
         cp -p "$GAME_BIN" "$ORIGINAL_GAME_BIN.new"
         mv -f "$ORIGINAL_GAME_BIN.new" "$ORIGINAL_GAME_BIN"
-    elif [ ! -f "$ORIGINAL_GAME_BIN" ]; then
-        fail "The Steam bundle launcher is present, but its original game-executable backup is missing. Verify the game files in Steam, then reinstall."
     fi
+
+    [ -f "$ORIGINAL_GAME_BIN" ] || fail "The original game-executable backup is missing. Verify the game files in Steam, then reinstall."
 
     original_archs="$(lipo -archs "$ORIGINAL_GAME_BIN" 2>/dev/null || true)"
     case " $original_archs " in
@@ -759,7 +781,8 @@ doctor_action() {
     fi
     if [ -f "$STEAM_BUNDLE_MARKER" ] && [ -f "$ORIGINAL_GAME_BIN" ] && [ -f "$STEAM_THIN_GAME_BIN" ]; then
         current_hash="$(sha256_file "$GAME_BIN")"
-        if [ "$current_hash" = "$BUNDLED_STEAM_BUNDLE_LAUNCHER_SHA256" ]; then
+        expected_hash="$(marker_launcher_hash)"
+        if [ -n "$expected_hash" ] && [ "$current_hash" = "$expected_hash" ]; then
             info "  Steam-compatible bundle launch: installed"
         else
             info "  Steam-compatible bundle launch: NEEDS REINSTALL (Steam may have updated the game)"
@@ -840,7 +863,8 @@ restore_steam_bundle_launcher() {
     mkdir -p "$backup_dir/AppExecutable"
     if [ -f "$GAME_BIN" ]; then
         current_hash="$(sha256_file "$GAME_BIN")"
-        if [ "$current_hash" = "$BUNDLED_STEAM_BUNDLE_LAUNCHER_SHA256" ]; then
+        expected_hash="$(marker_launcher_hash)"
+        if [ -n "$expected_hash" ] && [ "$current_hash" = "$expected_hash" ]; then
             [ -f "$ORIGINAL_GAME_BIN" ] || fail "Cannot restore the original ADOFAI executable because its backup is missing."
             cp -p "$GAME_BIN" "$backup_dir/AppExecutable/$EXECUTABLE_NAME.mod-launcher"
             cp -p "$ORIGINAL_GAME_BIN" "$GAME_BIN.restore"

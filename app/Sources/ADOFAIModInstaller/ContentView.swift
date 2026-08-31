@@ -11,7 +11,7 @@ struct ContentView: View {
                     gameSection
                     actions
                     status
-                    log
+                    friendlyResults
                 }
                 .padding(24)
             }
@@ -69,7 +69,7 @@ struct ContentView: View {
     private var actions: some View {
         VStack(spacing: 12) {
             HStack(spacing: 12) {
-                ActionButton(title: "Install or Update", subtitle: "Loader + Steam support", icon: "arrow.down.app.fill", tint: .blue) { model.install() }
+                ActionButton(title: model.isInstalled ? "Repair or Update" : "Install", subtitle: model.isInstalled ? "Existing installation detected" : "Loader + Steam support", icon: "arrow.down.app.fill", tint: .blue) { model.install() }
                 ActionButton(title: "Run Diagnostics", subtitle: "Check every component", icon: "stethoscope", tint: .purple) { model.diagnose() }
             }
             HStack(spacing: 12) {
@@ -108,17 +108,60 @@ struct ContentView: View {
         .background(.quaternary.opacity(0.45), in: RoundedRectangle(cornerRadius: 10))
     }
 
-    private var log: some View {
-        GroupBox("Details") {
-            ScrollView {
-                Text(model.output)
-                    .font(.system(.caption, design: .monospaced))
-                    .textSelection(.enabled)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(8)
+    private var friendlyResults: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            if !model.diagnostics.isEmpty {
+                GroupBox("System check") {
+                    VStack(spacing: 0) {
+                        ForEach(model.diagnostics) { item in
+                            HStack {
+                                Image(systemName: item.healthy ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
+                                    .foregroundStyle(item.healthy ? Color.green : Color.orange)
+                                Text(item.name).fontWeight(.medium)
+                                Spacer()
+                                Text(item.value).foregroundStyle(.secondary).lineLimit(1)
+                            }
+                            .padding(.vertical, 7)
+                            if item.id != model.diagnostics.last?.id { Divider() }
+                        }
+                    }.padding(.horizontal, 4)
+                }
+            } else if !model.results.isEmpty {
+                GroupBox("Progress") {
+                    VStack(spacing: 0) {
+                        ForEach(model.results) { item in
+                            HStack(spacing: 10) {
+                                resultIcon(item.kind)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(item.title).fontWeight(.medium)
+                                    Text(item.detail).font(.caption).foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                            }
+                            .padding(.vertical, 7)
+                            if item.id != model.results.last?.id { Divider() }
+                        }
+                    }.padding(.horizontal, 4)
+                }
             }
-            .frame(minHeight: 145, maxHeight: 210)
-            .background(Color(nsColor: .textBackgroundColor), in: RoundedRectangle(cornerRadius: 7))
+            DisclosureGroup("Technical details") {
+                ScrollView {
+                    Text(model.output).font(.system(.caption, design: .monospaced)).textSelection(.enabled)
+                        .frame(maxWidth: .infinity, alignment: .leading).padding(8)
+                }
+                .frame(height: 145)
+                .background(Color(nsColor: .textBackgroundColor), in: RoundedRectangle(cornerRadius: 7))
+                .padding(.top, 6)
+            }.foregroundStyle(.secondary)
+        }
+    }
+
+    @ViewBuilder private func resultIcon(_ kind: InstallerModel.ResultItem.Kind) -> some View {
+        switch kind {
+        case .working: ProgressView().controlSize(.small).frame(width: 18)
+        case .success: Image(systemName: "checkmark.circle.fill").foregroundStyle(.green).frame(width: 18)
+        case .failure: Image(systemName: "xmark.circle.fill").foregroundStyle(.red).frame(width: 18)
+        case .info: Image(systemName: "info.circle.fill").foregroundStyle(.blue).frame(width: 18)
         }
     }
 }
