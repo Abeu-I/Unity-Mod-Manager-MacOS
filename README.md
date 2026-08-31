@@ -22,9 +22,15 @@ Build the polished SwiftUI installer app from source:
 open "dist/ADOFAI Mod Installer.app"
 ```
 
-The app provides Install/Update, Add Mod, Diagnostics, Restore Vanilla, file
-pickers, progress, and detailed output. The command-line workflow remains
-available below.
+The app provides a friendly three-tab interface:
+
+- install, repair, diagnostics, and safe vanilla restore;
+- view installed mods, enable/disable them, or remove them to a recoverable backup;
+- drag and drop a UMM mod ZIP (archives are checked before extraction);
+- install verified recommended releases of ADOFAI Tweaks, JALib, Jipper
+  Resource Pack, Jipper Overlayer, and Mac AutoPlay.
+
+The command-line workflow remains available below.
 
 ### Command line
 
@@ -85,6 +91,26 @@ Unpack the mod first. Its folder must contain `Info.json`, then run:
 ```bash
 ./setup_adofai_umm_macos.sh add-mod --mod "/full/path/to/UnpackedMod"
 ```
+
+You can also install a ZIP directly and manage installed mods:
+
+```bash
+./setup_adofai_umm_macos.sh install-zip --zip "$HOME/Downloads/SomeMod.zip"
+./setup_adofai_umm_macos.sh list-mods
+./setup_adofai_umm_macos.sh disable-mod --mod-id SomeMod
+./setup_adofai_umm_macos.sh enable-mod --mod-id SomeMod
+./setup_adofai_umm_macos.sh remove-mod --mod-id SomeMod
+```
+
+## Build a DMG or publish a release
+
+Run `./create_dmg.sh` to create `dist/ADOFAI-Mod-Installer.dmg`. Tagged GitHub
+releases are built automatically by `.github/workflows/release.yml`. An unsigned
+build works without secrets. For a Gatekeeper-ready public release, configure
+the repository secrets `APPLE_CERTIFICATE_BASE64`, `APPLE_CERTIFICATE_PASSWORD`,
+`KEYCHAIN_PASSWORD`, `DEVELOPER_ID_APPLICATION`, `APPLE_ID`,
+`APPLE_APP_SPECIFIC_PASSWORD`, and `APPLE_TEAM_ID`. Apple Developer membership
+is required for Developer ID signing and notarization.
 
 ## Optional Mac AutoPlay cheat mod
 

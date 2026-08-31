@@ -40,5 +40,10 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 PLIST
 
 chmod +x "$APP/Contents/MacOS/ADOFAIModInstaller" "$APP/Contents/Resources/Tools"/*.sh
-codesign --force --deep --sign - "$APP" >/dev/null
+SIGN_IDENTITY="${DEVELOPER_ID_APPLICATION:--}"
+if [ "$SIGN_IDENTITY" = "-" ]; then
+    codesign --force --deep --sign - "$APP" >/dev/null
+else
+    codesign --force --deep --options runtime --timestamp --sign "$SIGN_IDENTITY" "$APP"
+fi
 echo "Built: $APP"

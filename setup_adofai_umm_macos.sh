@@ -14,6 +14,8 @@ SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 ACTION="install"
 GAME_APP=""
 MOD_SOURCE=""
+MOD_ZIP=""
+MOD_ID=""
 UMM_ZIP=""
 DOORSTOP_ZIP=""
 DRY_RUN=0
@@ -56,6 +58,12 @@ Usage:
   $SCRIPT_NAME add-mod --mod PATH [options]
   $SCRIPT_NAME doctor [options]
   $SCRIPT_NAME uninstall [options]
+  $SCRIPT_NAME list-mods [options]
+  $SCRIPT_NAME install-zip --zip PATH [options]
+  $SCRIPT_NAME enable-mod --mod-id ID [options]
+  $SCRIPT_NAME disable-mod --mod-id ID [options]
+  $SCRIPT_NAME remove-mod --mod-id ID [options]
+  $SCRIPT_NAME install-recommended --mod-id ID [options]
 
 Actions:
   install      Install Doorstop 4 and the managed UMM runtime. Pass --mod
@@ -125,7 +133,7 @@ download_file() {
 parse_args() {
     if [ "$#" -gt 0 ]; then
         case "$1" in
-            install|add-mod|doctor|uninstall)
+            install|add-mod|doctor|uninstall|list-mods|install-zip|enable-mod|disable-mod|remove-mod|install-recommended)
                 ACTION="$1"
                 shift
                 ;;
@@ -146,6 +154,16 @@ parse_args() {
             --mod)
                 [ "$#" -ge 2 ] || fail "--mod requires a path"
                 MOD_SOURCE="$2"
+                shift 2
+                ;;
+            --zip)
+                [ "$#" -ge 2 ] || fail "--zip requires a path"
+                MOD_ZIP="$2"
+                shift 2
+                ;;
+            --mod-id)
+                [ "$#" -ge 2 ] || fail "--mod-id requires a value"
+                MOD_ID="$2"
                 shift 2
                 ;;
             --umm-zip)
@@ -722,6 +740,122 @@ install_mod_folder() {
     info "Installed mod '$mod_id' to: $destination"
 }
 
+validate_mod_id() {
+    value="$1"
+    [ -n "$value" ] || fail "A mod ID is required."
+    case "$value" in *[!A-Za-z0-9._-]*) fail "Unsafe mod ID: $value" ;; esac
+}
+
+extract_safe_mod_zip() {
+    archive="$1"
+    destination="$2"
+    /usr/bin/python3 - "$archive" "$destination" <<'PY'
+import os, stat, sys, zipfile
+archive, destination = sys.argv[1:]
+limit = 512 * 1024 * 1024
+with zipfile.ZipFile(archive) as z:
+    infos = z.infolist()
+    if len(infos) > 5000:
+        raise SystemExit("ZIP contains too many files.")
+    if sum(i.file_size for i in infos) > limit:
+        raise SystemExit("ZIP expands beyond the 512 MB safety limit.")
+    for info in infos:
+        name = info.filename.replace("\\", "/")
+        parts = [p for p in name.split("/") if p not in ("", ".")]
+        mode = (info.external_attr >> 16) & 0xFFFF
+        if name.startswith("/") or ".." in parts or (mode and stat.S_ISLNK(mode)):
+            raise SystemExit(f"Unsafe ZIP entry: {info.filename}")
+        target = os.path.realpath(os.path.join(destination, *parts))
+        if os.path.commonpath([os.path.realpath(destination), target]) != os.path.realpath(destination):
+            raise SystemExit(f"ZIP entry escapes destination: {info.filename}")
+    z.extractall(destination)
+PY
+}
+
+install_zip_action() {
+    [ -n "$MOD_ZIP" ] || fail "install-zip requires --zip PATH"
+    [ -f "$MOD_ZIP" ] || fail "ZIP file not found: $MOD_ZIP"
+    resolve_game_layout
+    [ -f "$UMM_DIR/UnityModManager.dll" ] || fail "UMM is not installed. Install the loader first."
+    prepare_temp_dir
+    extracted="$TEMP_DIR/mod-zip"
+    mkdir -p "$extracted"
+    extract_safe_mod_zip "$MOD_ZIP" "$extracted"
+    info_list="$(find "$extracted" -maxdepth 6 -type f \( -name Info.json -o -name info.json \) -print)"
+    info_count="$(printf '%s\n' "$info_list" | sed '/^$/d' | wc -l | tr -d ' ')"
+    [ "$info_count" = "1" ] || fail "ZIP must contain exactly one UMM mod Info.json (found $info_count)."
+    info_file="$(printf '%s\n' "$info_list" | head -n 1)"
+    install_mod_folder "$(dirname "$info_file")"
+}
+
+list_mods_action() {
+    resolve_game_layout
+    [ -d "$MODS_DIR" ] || return 0
+    for directory in "$MODS_DIR"/*; do
+        [ -d "$directory" ] || continue
+        info_file=""
+        enabled="true"
+        for candidate in "$directory/Info.json" "$directory/info.json"; do [ -f "$candidate" ] && info_file="$candidate" && break; done
+        if [ -z "$info_file" ]; then
+            for candidate in "$directory/Info.json.disabled" "$directory/info.json.disabled"; do [ -f "$candidate" ] && info_file="$candidate" && enabled="false" && break; done
+        fi
+        [ -n "$info_file" ] || continue
+        /usr/bin/python3 - "$info_file" "$enabled" <<'PY'
+import json, sys
+path, enabled = sys.argv[1:]
+with open(path, encoding="utf-8-sig") as f: data = json.load(f)
+clean = lambda value: str(value or "").replace("\t", " ").replace("\n", " ")
+print("MOD\t{}\t{}\t{}\t{}\t{}".format(clean(data.get("Id")), clean(data.get("DisplayName") or data.get("Id")), clean(data.get("Version")), enabled, clean(data.get("Author"))))
+PY
+    done
+}
+
+set_mod_enabled_action() {
+    validate_mod_id "$MOD_ID"
+    resolve_game_layout
+    directory="$MODS_DIR/$MOD_ID"
+    [ -d "$directory" ] || fail "Mod is not installed: $MOD_ID"
+    if [ "$ACTION" = "disable-mod" ]; then
+        if [ -f "$directory/Info.json" ]; then mv "$directory/Info.json" "$directory/Info.json.disabled"
+        elif [ -f "$directory/info.json" ]; then mv "$directory/info.json" "$directory/info.json.disabled"
+        else info "Mod is already disabled: $MOD_ID"; return; fi
+        info "Disabled mod: $MOD_ID"
+    else
+        if [ -f "$directory/Info.json.disabled" ]; then mv "$directory/Info.json.disabled" "$directory/Info.json"
+        elif [ -f "$directory/info.json.disabled" ]; then mv "$directory/info.json.disabled" "$directory/info.json"
+        else info "Mod is already enabled: $MOD_ID"; return; fi
+        info "Enabled mod: $MOD_ID"
+    fi
+}
+
+remove_mod_action() {
+    validate_mod_id "$MOD_ID"
+    resolve_game_layout
+    directory="$MODS_DIR/$MOD_ID"
+    [ -d "$directory" ] || fail "Mod is not installed: $MOD_ID"
+    backup_dir="$(make_backup_dir)"
+    mkdir -p "$backup_dir/Mods"
+    mv "$directory" "$backup_dir/Mods/$MOD_ID"
+    info "Removed mod to recoverable backup: $backup_dir/Mods/$MOD_ID"
+}
+
+install_recommended_action() {
+    validate_mod_id "$MOD_ID"
+    case "$MOD_ID" in
+        AdofaiTweaks) url="https://github.com/PizzaLovers007/AdofaiTweaks/releases/download/v2.9.2/AdofaiTweaks-2.9.2.zip"; expected="54f95784ed5833b7df091ce2fd2d544aa26d5014752041240c1e5dc4e5103c2d" ;;
+        JALib) url="https://github.com/Jongye0l/JALib/releases/download/v1.0.0.45/JALib.zip"; expected="93938ff8020bb6b2aa3d9ff95f22de71b2d91ea2c14548c205450d8ea9b0fc61" ;;
+        JipperResourcePack) url="https://github.com/Jongye0l/JipperResourcePack/releases/download/v1.4.9.0/JipperResourcePack.zip"; expected="15bf36cb31180bd4d2ca6b6cff5db03776084b09d208bf7761502c6fb6bfdd46" ;;
+        JipperOverlayer) url="https://github.com/adofaiex/JipperOverlayer/releases/download/v1.1.4/JipperOverlayer-UMM.zip"; expected="520739a70078b205c163e57a162549f367405268badcfeffe4062916ede38227" ;;
+        *) fail "Unknown recommended mod: $MOD_ID" ;;
+    esac
+    prepare_temp_dir
+    MOD_ZIP="$TEMP_DIR/$MOD_ID.zip"
+    download_file "$url" "$MOD_ZIP"
+    actual="$(sha256_file "$MOD_ZIP")"
+    [ "$actual" = "$expected" ] || fail "Downloaded mod checksum mismatch: $actual"
+    install_zip_action
+}
+
 doctor_action() {
     resolve_game_layout
 
@@ -918,4 +1052,9 @@ case "$ACTION" in
     add-mod) add_mod_action ;;
     doctor) doctor_action ;;
     uninstall) uninstall_action ;;
+    list-mods) list_mods_action ;;
+    install-zip) install_zip_action ;;
+    enable-mod|disable-mod) set_mod_enabled_action ;;
+    remove-mod) remove_mod_action ;;
+    install-recommended) install_recommended_action ;;
 esac

@@ -1,0 +1,57 @@
+name: Build macOS release
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  macos:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Import signing certificate
+        if: ${{ secrets.APPLE_CERTIFICATE_BASE64 != '' }}
+        env:
+          CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          echo "$CERTIFICATE" | base64 --decode > "$RUNNER_TEMP/certificate.p12"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security set-keychain-settings -lut 21600 build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security import "$RUNNER_TEMP/certificate.p12" -P "$CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k build.keychain
+          security list-keychain -d user -s build.keychain
+      - name: Build app and DMG
+        env:
+          DEVELOPER_ID_APPLICATION: ${{ secrets.DEVELOPER_ID_APPLICATION }}
+        run: |
+          chmod +x create_dmg.sh package_app.sh build_native_components.sh
+          if [ -z "$DEVELOPER_ID_APPLICATION" ]; then unset DEVELOPER_ID_APPLICATION; fi
+          ./create_dmg.sh
+      - name: Notarize and staple
+        if: ${{ secrets.APPLE_ID != '' }}
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          xcrun notarytool submit dist/ADOFAI-Mod-Installer.dmg --apple-id "$APPLE_ID" --password "$APPLE_APP_SPECIFIC_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait
+          xcrun stapler staple dist/ADOFAI-Mod-Installer.dmg
+      - name: Checksums
+        run: shasum -a 256 dist/ADOFAI-Mod-Installer.dmg > dist/ADOFAI-Mod-Installer.dmg.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ADOFAI-Mod-Installer-macOS
+          path: |
+            dist/ADOFAI-Mod-Installer.dmg
+            dist/ADOFAI-Mod-Installer.dmg.sha256
+      - name: Publish tagged release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/ADOFAI-Mod-Installer.dmg dist/ADOFAI-Mod-Installer.dmg.sha256 --generate-notes
