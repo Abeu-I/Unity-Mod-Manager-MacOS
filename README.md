@@ -11,6 +11,10 @@ Unity Mod Manager's managed runtime, which loads ordinary mods from
 It does **not** use Wine, Whisky, CrossOver, or disable System Integrity
 Protection.
 
+Version 0.1.1 fixes a launch-environment mismatch that could make the injected
+game executable close immediately on startup. The native loader also treats a
+missing enable variable safely instead of crashing.
+
 ## Install
 
 ### Native app

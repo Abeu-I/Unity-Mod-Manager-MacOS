@@ -273,7 +273,8 @@ int fclose_hook(FILE *stream) {
 }
 
 __attribute__ ((constructor)) void doorstop_setup() {
-    if (strcmp(getenv("DOORSTOP_ENABLE"), "TRUE"))
+    const char *doorstop_enable = getenv("DOORSTOP_ENABLE");
+    if (doorstop_enable == NULL || strcmp(doorstop_enable, "TRUE"))
     {
         printf("[Doorstop] DOORSTOP_ENABLE is not TRUE! Disabling Doorstop...\n");
         return;

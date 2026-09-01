@@ -112,6 +112,8 @@ int main(int argc, char **argv)
     }
 
     if (prepend_environment_once("DYLD_INSERT_LIBRARIES", doorstop) != 0 ||
+        setenv("DOORSTOP_ENABLE", "TRUE", 1) != 0 ||
+        setenv("DOORSTOP_INVOKE_DLL_PATH", umm, 1) != 0 ||
         setenv("DOORSTOP_ENABLED", "1", 1) != 0 ||
         setenv("DOORSTOP_TARGET_ASSEMBLY", umm, 1) != 0 ||
         setenv("SteamAppId", "977950", 1) != 0 ||
@@ -119,9 +121,6 @@ int main(int argc, char **argv)
         perror("setenv");
         return 70;
     }
-    unsetenv("DOORSTOP_ENABLE");
-    unsetenv("DOORSTOP_INVOKE_DLL_PATH");
-
     child_argv = calloc((size_t)argc + 1, sizeof(char *));
     if (child_argv == NULL) {
         perror("calloc");
