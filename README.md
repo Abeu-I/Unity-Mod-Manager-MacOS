@@ -1,4 +1,4 @@
-# ADOFAI + Unity Mod Manager on macOS (no Wine)
+# ADOFAI + Unity Mod Manager on macOS
 
 This setup runs the Intel slice of A Dance of Fire and Ice through Apple's
 Rosetta 2 and uses a small native in-bundle launcher to inject the macOS
