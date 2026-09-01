@@ -11,9 +11,10 @@ Unity Mod Manager's managed runtime, which loads ordinary mods from
 It does **not** use Wine, Whisky, CrossOver, or disable System Integrity
 Protection.
 
-Version 0.1.1 fixes a launch-environment mismatch that could make the injected
-game executable close immediately on startup. The native loader also treats a
-missing enable variable safely instead of crashing.
+Version 1.1 pins the verified Doorstop 4 loader that successfully injects UMM
+and loads all five bundled mods on the current ADOFAI Unity 6 build. Its SHA-256
+is checked before packaging, preventing the incompatible fallback and later
+bootstrap experiments from being installed accidentally.
 
 ## Install
 
@@ -52,7 +53,8 @@ game, run this first:
 ./setup_adofai_umm_macos.sh install --dry-run --mod "$HOME/Downloads/AdofaiTweaks"
 ```
 
-The repository is source-only. On first installation it compiles Doorstop and
+The repository is source-only. On first installation it downloads the pinned,
+checksum-verified Doorstop loader from this repository's v1.1 release, compiles
 the Steam launcher locally with Apple's command-line tools, downloads the
 official UMM package, installs the UMM runtime, and creates a terminal launcher
 next to the game:
