@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/github-logo.png" alt="ADOFAI Unity Mod Manager for macOS logo" width="280">
+</p>
+
 # ADOFAI + Unity Mod Manager on macOS
 
 This setup runs the Intel slice of A Dance of Fire and Ice through Apple's
