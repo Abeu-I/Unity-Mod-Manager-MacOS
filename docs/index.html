@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Native Unity Mod Manager support for A Dance of Fire and Ice on macOS. No Wine, Whisky, or CrossOver.">
+  <meta name="theme-color" content="#090a0f">
+  <title>ADOFAI UMM for macOS</title>
+  <link rel="preconnect" href="https://api.github.com">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="ADOFAI UMM home">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i></span>
+      <span>ADOFAI <b>UMM</b></span>
+    </a>
+
+    <nav aria-label="Main navigation">
+      <a href="#checker">Compatibility</a>
+      <a href="#install">Install</a>
+      <a href="#mods">Mods</a>
+      <a href="#help">Help</a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch to light theme" title="Switch theme">
+        <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"/></svg>
+      </button>
+      <a class="github-link" href="https://github.com/Abeu-I/Unity-Mod-Manager-MacOS" target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="hero-copy reveal">
+        <div class="eyebrow"><span class="status-dot"></span> Native macOS mod loading</div>
+        <h1>Break the rhythm.<br><span>Keep the beat.</span></h1>
+        <p class="hero-lede">Run Unity Mod Manager mods in A Dance of Fire and Ice while keeping Steam Overlay, Workshop, achievements, and playtime connected.</p>
+
+        <div class="hero-actions">
+          <a class="button primary" id="download-button" href="https://github.com/Abeu-I/Unity-Mod-Manager-MacOS/releases/latest" target="_blank" rel="noreferrer">
+            <span>Download for macOS</span>
+            <small id="release-label">Latest release</small>
+          </a>
+          <a class="button secondary" href="#install">See how it works</a>
+        </div>
+
+        <ul class="trust-row" aria-label="Project highlights">
+          <li><span>✓</span> No Wine</li>
+          <li><span>✓</span> Open source</li>
+          <li><span>✓</span> Reversible</li>
+        </ul>
+      </div>
+
+      <div class="hero-visual reveal" aria-label="Installer status preview">
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+        <img src="https://raw.githubusercontent.com/Abeu-I/Unity-Mod-Manager-MacOS/main/assets/github-logo.png" alt="ADOFAI Unity Mod Manager for macOS">
+        <div class="status-card">
+          <div class="terminal-bar"><span></span><span></span><span></span><b>MOD CORE</b></div>
+          <div class="status-line"><span>Doorstop 4.5</span><strong>ONLINE</strong></div>
+          <div class="status-line"><span>Steam bridge</span><strong>LINKED</strong></div>
+          <div class="status-line"><span>UMM runtime</span><strong>READY</strong></div>
+          <div class="pulse-track"><i></i></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="signal-strip" aria-label="Technical highlights">
+      <div><strong>STEAM</strong><span>Overlay + Workshop</span></div>
+      <div><strong>UNITY 6</strong><span>Verified loader</span></div>
+      <div><strong>macOS</strong><span>Native installer</span></div>
+      <div><strong>CTRL + F10</strong><span>Open mod manager</span></div>
+    </section>
+
+    <section class="section checker" id="checker">
+      <div class="section-heading reveal">
+        <span class="kicker">01 // SYSTEM CHECK</span>
+        <h2>Will it work on your Mac?</h2>
+        <p>Choose your setup for an instant answer. Nothing is uploaded or collected.</p>
+      </div>
+
+      <div class="checker-grid reveal">
+        <form class="checker-panel" id="compatibility-form">
+          <fieldset>
+            <legend>Your Mac</legend>
+            <div class="segmented">
+              <label><input type="radio" name="chip" value="apple" checked><span>Apple Silicon</span></label>
+              <label><input type="radio" name="chip" value="intel"><span>Intel</span></label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Your game</legend>
+            <div class="segmented">
+              <label><input type="radio" name="store" value="steam" checked><span>Steam version</span></label>
+              <label><input type="radio" name="store" value="other"><span>Other version</span></label>
+            </div>
+          </fieldset>
+          <button class="button primary full" type="submit">Run compatibility check</button>
+        </form>
+
+        <div class="result-panel" id="compatibility-result" aria-live="polite">
+          <div class="result-icon">✓</div>
+          <div>
+            <span class="result-label">READY TO MOD</span>
+            <h3>Apple Silicon + Steam</h3>
+            <p>Supported through Rosetta 2. Steam Overlay, Workshop, achievements, and playtime remain connected.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section install" id="install">
+      <div class="section-heading reveal">
+        <span class="kicker">02 // DEPLOYMENT</span>
+        <h2>From download to modded in four moves.</h2>
+      </div>
+
+      <div class="stepper reveal">
+        <div class="step-tabs" role="tablist" aria-label="Installation steps">
+          <button role="tab" aria-selected="true" aria-controls="step-panel" id="step-1" data-step="0"><span>01</span> Download</button>
+          <button role="tab" aria-selected="false" aria-controls="step-panel" id="step-2" data-step="1"><span>02</span> Open</button>
+          <button role="tab" aria-selected="false" aria-controls="step-panel" id="step-3" data-step="2"><span>03</span> Install</button>
+          <button role="tab" aria-selected="false" aria-controls="step-panel" id="step-4" data-step="3"><span>04</span> Launch</button>
+        </div>
+
+        <div class="step-panel" id="step-panel" role="tabpanel" tabindex="0" aria-labelledby="step-1">
+          <div>
+            <span class="step-count">STEP 01 / 04</span>
+            <h3>Get the latest installer</h3>
+            <p>Download the macOS ZIP from the latest GitHub release, then open it from your Downloads folder.</p>
+            <a class="inline-link" href="https://github.com/Abeu-I/Unity-Mod-Manager-MacOS/releases/latest" target="_blank" rel="noreferrer">Open latest release <span>↗</span></a>
+          </div>
+          <div class="step-command">
+            <span>FILE TO LOOK FOR</span>
+            <code id="step-code">ADOFAI-Mod-Installer-macOS.zip</code>
+            <button class="copy-button" type="button" data-copy="ADOFAI-Mod-Installer-macOS.zip">Copy</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section mods" id="mods">
+      <div class="section-heading reveal">
+        <span class="kicker">03 // LOADOUT</span>
+        <h2>Pick your setup.</h2>
+        <p>The installer can add verified recommended mods or install another UMM mod from a ZIP.</p>
+      </div>
+
+      <div class="filter-row reveal" role="group" aria-label="Filter mods">
+        <button class="filter active" type="button" data-filter="all">All</button>
+        <button class="filter" type="button" data-filter="interface">Interface</button>
+        <button class="filter" type="button" data-filter="visual">Visual</button>
+        <button class="filter" type="button" data-filter="utility">Utility</button>
+        <button class="filter" type="button" data-filter="gameplay">Gameplay</button>
+      </div>
+
+      <div class="mod-grid">
+        <article class="mod-card reveal" data-category="interface">
+          <div class="mod-icon purple">UI</div>
+          <div class="mod-meta"><span>INTERFACE</span><b>Optional</b></div>
+          <h3>Modern UMM UI</h3>
+          <p>A cleaner, responsive in-game manager with mod cards, activity logs, and dedicated settings pages.</p>
+          <button class="details-toggle" type="button" aria-expanded="false">Details <span>+</span></button>
+          <div class="mod-details"><p>UI-only: mod loading, Steam support, game files, and each mod’s own settings remain unchanged.</p></div>
+        </article>
+
+        <article class="mod-card reveal" data-category="utility">
+          <div class="mod-icon blue">AT</div>
+          <div class="mod-meta"><span>UTILITY</span><b>Recommended</b></div>
+          <h3>AdofaiTweaks</h3>
+          <p>A broad collection of editor, gameplay, visual, and quality-of-life settings for ADOFAI.</p>
+          <button class="details-toggle" type="button" aria-expanded="false">Details <span>+</span></button>
+          <div class="mod-details"><p>Installed with its complete dependency folder so translation, database, and asset files stay intact.</p></div>
+        </article>
+
+        <article class="mod-card reveal" data-category="visual">
+          <div class="mod-icon pink">JO</div>
+          <div class="mod-meta"><span>VISUAL</span><b>Optional</b></div>
+          <h3>Jipper Overlayer</h3>
+          <p>Adds an advanced gameplay overlay with timing and progress information for supported levels.</p>
+          <button class="details-toggle" type="button" aria-expanded="false">Details <span>+</span></button>
+          <div class="mod-details"><p>Uses JALib and includes its required fonts and interface assets.</p></div>
+        </article>
+
+        <article class="mod-card reveal" data-category="visual">
+          <div class="mod-icon orange">JR</div>
+          <div class="mod-meta"><span>VISUAL</span><b>Optional</b></div>
+          <h3>Jipper Resource Pack</h3>
+          <p>Extends the game with Jipper’s visual resources and works alongside the Overlayer.</p>
+          <button class="details-toggle" type="button" aria-expanded="false">Details <span>+</span></button>
+          <div class="mod-details"><p>The Resource Pack and Overlayer are separate mods; keeping both installed is supported.</p></div>
+        </article>
+
+        <article class="mod-card reveal" data-category="utility">
+          <div class="mod-icon green">JA</div>
+          <div class="mod-meta"><span>LIBRARY</span><b>Dependency</b></div>
+          <h3>JALib</h3>
+          <p>The shared library required by Jipper mods. The installer keeps compatible versions together.</p>
+          <button class="details-toggle" type="button" aria-expanded="false">Details <span>+</span></button>
+          <div class="mod-details"><p>Install this before or alongside mods that list JALib as a dependency.</p></div>
+        </article>
+
+        <article class="mod-card reveal" data-category="gameplay">
+          <div class="mod-icon red">AP</div>
+          <div class="mod-meta"><span>GAMEPLAY</span><b>Experimental</b></div>
+          <h3>Mac AutoPlay</h3>
+          <p>A macOS-native testing tool that wraps ADOFAI’s built-in cross-platform autoplay mode.</p>
+          <button class="details-toggle" type="button" aria-expanded="false">Details <span>+</span></button>
+          <div class="mod-details"><p>Toggle with F8. Intended for local and custom-level testing, not competitive score submissions.</p></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section help" id="help">
+      <div class="section-heading reveal">
+        <span class="kicker">04 // RECOVERY</span>
+        <h2>If the beat drops, start here.</h2>
+      </div>
+
+      <div class="faq-list reveal">
+        <details>
+          <summary><span>UMM does not appear when I press Control + F10.</span><i>+</i></summary>
+          <p>On keyboards where F10 controls audio, press <strong>Control + Fn + F10</strong>. Also open the installer and run its diagnostic check to confirm the loader and mod are active.</p>
+        </details>
+        <details>
+          <summary><span>Will Steam Workshop and achievements still work?</span><i>+</i></summary>
+          <p>Yes. Launch ADOFAI using the normal Steam Play button after installation. The in-bundle launcher preserves Steam’s game process and Steamworks connection.</p>
+        </details>
+        <details>
+          <summary><span>Can I return to the vanilla game?</span><i>+</i></summary>
+          <p>Yes. The installer creates recoverable backups and includes a Restore Vanilla action. Your Mods folder is preserved during loader removal.</p>
+        </details>
+        <details>
+          <summary><span>Does this work with every Unity game?</span><i>+</i></summary>
+          <p>No. This release is built and verified specifically for the Steam macOS version of A Dance of Fire and Ice.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="cta reveal">
+      <span class="kicker">SYSTEM ARMED</span>
+      <h2>Ready to change the rhythm?</h2>
+      <p>Open source. Native on macOS. Built for the ADOFAI community.</p>
+      <div class="hero-actions centered">
+        <a class="button primary" href="https://github.com/Abeu-I/Unity-Mod-Manager-MacOS/releases/latest" target="_blank" rel="noreferrer">Get the installer</a>
+        <a class="button secondary" href="https://github.com/Abeu-I/Unity-Mod-Manager-MacOS" target="_blank" rel="noreferrer">View source</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"><i></i><i></i></span><span>ADOFAI <b>UMM</b></span></a>
+    <p>Unofficial community project. Not affiliated with 7th Beat Games or Unity Mod Manager.</p>
+    <div><a href="https://github.com/Abeu-I/Unity-Mod-Manager-MacOS/blob/main/LICENSE">MIT License</a><a href="https://github.com/Abeu-I/Unity-Mod-Manager-MacOS/issues">Report an issue</a></div>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">Copied to clipboard</div>
+</body>
+</html>
