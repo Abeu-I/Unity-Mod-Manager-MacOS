@@ -22,11 +22,14 @@ namespace ModernUMMUI
                 harmony = new Harmony("com.abeui.adofai.modernummui");
                 MethodInfo original = AccessTools.Method(typeof(UnityModManager.UI), "WindowFunction");
                 MethodInfo prefix = AccessTools.Method(typeof(MainWindowPatch), "Prefix");
-                if (original == null || prefix == null)
+                MethodInfo onGui = AccessTools.Method(typeof(UnityModManager.UI), "OnGUI");
+                MethodInfo sizePrefix = AccessTools.Method(typeof(WindowSizePatch), "Prefix");
+                if (original == null || prefix == null || onGui == null || sizePrefix == null)
                 {
                     throw new MissingMethodException("Unity Mod Manager window method was not found.");
                 }
                 harmony.Patch(original, prefix: new HarmonyMethod(prefix));
+                harmony.Patch(onGui, prefix: new HarmonyMethod(sizePrefix));
                 modEntry.Logger.Log("Modern UMM UI enabled. Open it with Control+F10.");
                 return true;
             }
@@ -42,6 +45,17 @@ namespace ModernUMMUI
             Enabled = value;
             ModernWindow.CloseSettings();
             return true;
+        }
+    }
+
+    internal static class WindowSizePatch
+    {
+        internal static void Prefix(object __instance)
+        {
+            if (Main.Enabled)
+            {
+                ModernWindow.EnsureWindowSize(__instance);
+            }
         }
     }
 
@@ -104,6 +118,49 @@ namespace ModernUMMUI
         private static int page;
         private static UnityModManager.ModEntry selectedMod;
         private static FieldInfo historyField;
+        private static FieldInfo windowRectField;
+        private static FieldInfo windowSizeField;
+        private static FieldInfo expectedWindowSizeField;
+
+        internal static void EnsureWindowSize(object ui)
+        {
+            if (ui == null || Screen.width <= 0 || Screen.height <= 0) return;
+
+            Type uiType = typeof(UnityModManager.UI);
+            if (windowRectField == null)
+            {
+                const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+                windowRectField = uiType.GetField("mWindowRect", flags);
+                windowSizeField = uiType.GetField("mWindowSize", flags);
+                expectedWindowSizeField = uiType.GetField("mExpectedWindowSize", flags);
+            }
+            if (windowRectField == null || windowSizeField == null || expectedWindowSizeField == null) return;
+
+            float maximumWidth = Mathf.Max(320f, Screen.width - 40f);
+            float maximumHeight = Mathf.Max(360f, Screen.height - 40f);
+            float desiredWidth = Mathf.Min(1000f, Mathf.Max(760f, Screen.width * 0.82f));
+            float desiredHeight = Mathf.Min(720f, Mathf.Max(560f, Screen.height * 0.78f));
+            desiredWidth = Mathf.Min(desiredWidth, maximumWidth);
+            desiredHeight = Mathf.Min(desiredHeight, maximumHeight);
+
+            Rect rect = (Rect)windowRectField.GetValue(ui);
+            Vector2 size = (Vector2)windowSizeField.GetValue(ui);
+            if (rect.width >= desiredWidth - 2f && rect.height >= desiredHeight - 2f &&
+                size.x >= desiredWidth - 2f && size.y >= desiredHeight - 2f)
+            {
+                return;
+            }
+
+            Rect expanded = new Rect(
+                Mathf.Max(20f, (Screen.width - desiredWidth) * 0.5f),
+                Mathf.Max(20f, (Screen.height - desiredHeight) * 0.5f),
+                desiredWidth,
+                desiredHeight);
+            Vector2 expandedSize = new Vector2(desiredWidth, desiredHeight);
+            windowRectField.SetValue(ui, expanded);
+            windowSizeField.SetValue(ui, expandedSize);
+            expectedWindowSizeField.SetValue(ui, expandedSize);
+        }
 
         internal static void Draw(int windowId)
         {
