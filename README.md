@@ -6,6 +6,7 @@
     <strong>🌐 Open the Interactive Website</strong>
   </a>
 </h1>
+
 # ADOFAI + Unity Mod Manager on macOS
 
 This setup runs the Intel slice of A Dance of Fire and Ice through Apple's
