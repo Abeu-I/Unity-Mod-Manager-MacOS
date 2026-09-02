@@ -13,7 +13,7 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources/Tools/src" "$APP/Contents/Resources/Tools/third_party" "$APP/Contents/Resources/Tools/mods"
 cp "$BUILD_ROOT/release/ADOFAIModInstaller" "$APP/Contents/MacOS/ADOFAIModInstaller"
 
-for item in setup_adofai_umm_macos.sh configure_adofai_steam_launch.sh build_native_components.sh build_mac_autoplay.sh; do
+for item in setup_adofai_umm_macos.sh configure_adofai_steam_launch.sh build_native_components.sh build_mac_autoplay.sh build_modern_umm_ui.sh; do
     cp "$SCRIPT_DIR/$item" "$APP/Contents/Resources/Tools/$item"
 done
 cp "$SCRIPT_DIR/libdoorstop_adofai_macos.dylib" "$APP/Contents/Resources/Tools/libdoorstop_adofai_macos.dylib"

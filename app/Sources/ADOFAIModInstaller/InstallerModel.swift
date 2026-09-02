@@ -36,6 +36,7 @@ final class InstallerModel: ObservableObject {
         RecommendedMod(id: "JALib", name: "JALib", version: "1.0.0.45", summary: "Shared library required by several Jongyeol mods.", dependency: nil),
         RecommendedMod(id: "JipperResourcePack", name: "Jipper Resource Pack", version: "1.4.9.0", summary: "Custom overlays, resources, and presentation tools.", dependency: "JALib"),
         RecommendedMod(id: "JipperOverlayer", name: "Jipper Overlayer", version: "1.1.4", summary: "Modern customizable gameplay overlay for Unity 6000.", dependency: nil),
+        RecommendedMod(id: "ModernUMMUI", name: "Modern UMM UI", version: "1.0.0", summary: "A cleaner, more intuitive in-game mod manager window.", dependency: nil),
         RecommendedMod(id: "MacAutoPlay", name: "Mac AutoPlay", version: "0.1.0", summary: "Local/custom-level autoplay using ADOFAI's native auto mode.", dependency: nil)
     ]
 
@@ -81,6 +82,8 @@ final class InstallerModel: ObservableObject {
     func installRecommended(_ mod: RecommendedMod) {
         if mod.id == "MacAutoPlay" {
             runScript(name: "build_mac_autoplay.sh", arguments: ["--install"], label: "Installing Mac AutoPlay")
+        } else if mod.id == "ModernUMMUI" {
+            runScript(name: "build_modern_umm_ui.sh", arguments: ["--install"], label: "Installing Modern UMM UI")
         } else {
             runSetup(action: "install-recommended", label: "Installing \(mod.name)", extra: ["--mod-id", mod.id])
         }

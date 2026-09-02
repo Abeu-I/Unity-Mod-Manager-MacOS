@@ -37,7 +37,15 @@ The app provides a friendly three-tab interface:
 - view installed mods, enable/disable them, or remove them to a recoverable backup;
 - drag and drop a UMM mod ZIP (archives are checked before extraction);
 - install verified recommended releases of ADOFAI Tweaks, JALib, Jipper
-  Resource Pack, Jipper Overlayer, and Mac AutoPlay.
+  Resource Pack, Jipper Overlayer, Modern UMM UI, and Mac AutoPlay.
+
+### Modern in-game UMM interface
+
+`ModernUMMUI` is an optional UI-only mod included with the installer. It
+replaces UMM's old window renderer with a clearer mod dashboard, dedicated
+settings pages, an activity log, and concise status labels. It does not change
+Doorstop, Steam integration, mod loading, or individual mod components. Disable
+the mod to return to UMM's original interface.
 
 The command-line workflow remains available below.
 

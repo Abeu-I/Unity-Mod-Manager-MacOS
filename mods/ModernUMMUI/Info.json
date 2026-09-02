@@ -1,0 +1,9 @@
+{
+  "Id": "ModernUMMUI",
+  "DisplayName": "Modern UMM UI",
+  "Author": "Abeu-I",
+  "Version": "1.0.0",
+  "ManagerVersion": "0.22.14",
+  "AssemblyName": "ModernUMMUI.dll",
+  "EntryMethod": "ModernUMMUI.Main.Load"
+}
