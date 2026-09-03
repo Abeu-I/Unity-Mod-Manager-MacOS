@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/github-logo.png" alt="ADOFAI Unity Mod Manager for macOS logo" width="280">
+  <img src="assets/github-logo.png" alt="Holy AI Logo" width="280">
 </p>
 <h1 align="center">
   <a href="https://abeu-i.github.io/Unity-Mod-Manager-MacOS/">
